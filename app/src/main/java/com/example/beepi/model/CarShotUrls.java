@@ -5,4 +5,6 @@ package com.example.beepi.model;
  */
 public class CarShotUrls {
     public String heroShotUrl;
+    public String leftSideShotUrl;
+    public String rightSideShotUrl;
 }
