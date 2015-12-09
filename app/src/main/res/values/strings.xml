@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Beepi</string>
+    <string name="search">Search</string>
+    <string name="accessibility_progress_indicator">In Progress</string>
+
+    <string name="error_timeout">Connection timed out.</string>
+    <string name="error_network">Connection failed.</string>
+
+    <string name="car_item_label">%1$s %2$s</string>
+    <string name="car_item_miles">%1$s miles</string>
+</resources>
