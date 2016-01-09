@@ -3,6 +3,6 @@
     <color name="colorPrimary">#009BFF</color>
     <color name="colorPrimaryDark">#008EF0</color>
     <color name="colorAccent">#31ADFD</color>
-    <color name="price">#32AD36</color>
+    <color name="price">#FFFFFF</color>
     <color name="translucent_black">#88000000</color>
 </resources>
