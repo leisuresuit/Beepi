@@ -59,7 +59,7 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
         CarImageAdapter pagerAdapter = ((CarImageAdapter) holder.pager.getAdapter());
         pagerAdapter.setUrls(car.carShotUrls);
         holder.pager.setCurrentItem(0);
-        holder.name.setText(context.getString(R.string.car_item_label, car.makeName, car.shortStyleName));
+        holder.name.setText(context.getString(R.string.car_item_label, car.title, car.trim));
         holder.miles.setText(context.getString(R.string.car_item_miles, car.formattedMileage));
         holder.price.setText(car.formattedSalePrice);
         holder.itemView.setOnClickListener(new View.OnClickListener() {

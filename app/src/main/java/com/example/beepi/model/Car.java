@@ -6,6 +6,9 @@ package com.example.beepi.model;
 public class Car {
     public String vin;
     public String formattedMileage;
+    public String title;
+    public String trim;
+    public String yearMakeModel;
     public String makeName;
     public String shortStyleName;
     public String formattedSalePrice;
