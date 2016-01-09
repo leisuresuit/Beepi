@@ -13,6 +13,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.example.beepi.model.Car;
 import com.example.beepi.model.CarShotUrls;
+import com.example.beepi.util.ViewUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -105,7 +106,7 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
-            NetworkImageView iv = (NetworkImageView) mLayoutInflater.inflate(R.layout.car_item_image, container, false);
+            NetworkImageView iv = ViewUtil.findViewById(v, R.id.image);
             String url = null;
             switch (position) {
                 case 0:

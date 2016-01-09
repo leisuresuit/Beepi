@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -13,7 +12,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.view.Menu;
 import android.view.inputmethod.InputMethodManager;
 
 import com.android.volley.Request;
@@ -24,6 +22,7 @@ import com.android.volley.VolleyError;
 import com.example.beepi.model.Car;
 import com.example.beepi.model.CarsResponse;
 import com.example.beepi.network.CarsRequest;
+import com.example.beepi.util.ViewUtil;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -171,7 +170,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initToolbar() {
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = ViewUtil.findViewById(this, R.id.toolbar);
         setSupportActionBar(mToolbar);
     }
 
