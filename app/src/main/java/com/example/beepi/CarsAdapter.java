@@ -12,7 +12,6 @@ import android.widget.TextView;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.example.beepi.model.Car;
-import com.example.beepi.model.CarShotUrls;
 import com.example.beepi.util.ViewUtil;
 
 import java.util.ArrayList;
@@ -48,7 +47,9 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
                 .inflate(R.layout.car_item, parent, false);
         CarViewHolder holder = new CarViewHolder(v);
         ImageLoader imageLoader = AppHandles.getInstance().getImageLoader();
-        holder.pager.setAdapter(new CarImageAdapter(holder.itemView.getContext(), imageLoader));
+        CarImageAdapter adapter = new CarImageAdapter(holder.itemView.getContext(), imageLoader);
+        adapter.setListener(mListener);
+        holder.pager.setAdapter(adapter);
         return holder;
     }
 
@@ -57,7 +58,7 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
         Context context = holder.itemView.getContext();
         final Car car = mCars.get(position);
         CarImageAdapter pagerAdapter = ((CarImageAdapter) holder.pager.getAdapter());
-        pagerAdapter.setUrls(car.carShotUrls);
+        pagerAdapter.setCar(car);
         holder.pager.setCurrentItem(0);
         holder.name.setText(context.getString(R.string.car_item_label, car.title, car.trim));
         holder.miles.setText(context.getString(R.string.car_item_miles, car.formattedMileage));
@@ -82,21 +83,26 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
     static class CarImageAdapter extends PagerAdapter {
         private final LayoutInflater mLayoutInflater;
         private final ImageLoader mImageLoader;
-        private CarShotUrls mUrls;
+        private Car mCar;
+        private CarListener mListener;
 
         public CarImageAdapter(Context context, ImageLoader imageLoader) {
             mLayoutInflater = LayoutInflater.from(context);
             mImageLoader = imageLoader;
         }
 
-        public void setUrls(CarShotUrls urls) {
-            mUrls = urls;
+        public void setListener(CarListener listener) {
+            mListener = listener;
+        }
+
+        public void setCar(Car car) {
+            mCar = car;
             notifyDataSetChanged();
         }
 
         @Override
         public int getCount() {
-            return (mUrls != null) ? 3 : 0;
+            return (mCar != null && mCar.carShotUrls != null) ? 3 : 0;
         }
 
         @Override
@@ -106,24 +112,33 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
+            View v = mLayoutInflater.inflate(R.layout.car_item_image, container, false);
+            if (mListener != null){
+                v.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mListener.onCarClick(mCar);
+                    }
+                });
+            }
             NetworkImageView iv = ViewUtil.findViewById(v, R.id.image);
             String url = null;
             switch (position) {
                 case 0:
-                    url = mUrls.heroShotUrl;
+                    url = mCar.carShotUrls.heroShotUrl;
                     break;
                 case 1:
-                    url = mUrls.leftSideShotUrl;
+                    url = mCar.carShotUrls.leftSideShotUrl;
                     break;
                 case 2:
-                    url = mUrls.rightSideShotUrl;
+                    url = mCar.carShotUrls.rightSideShotUrl;
                     break;
             }
             if (url != null) {
                 iv.setImageUrl("https:" + url, mImageLoader);
             }
-            container.addView(iv);
-            return iv;
+            container.addView(v);
+            return v;
         }
 
         @Override
