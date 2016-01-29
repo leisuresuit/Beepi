@@ -16,8 +16,8 @@ import android.view.inputmethod.InputMethodManager;
 
 import com.example.beepi.model.Car;
 import com.example.beepi.model.CarsResponse;
-import com.example.beepi.network.JsonCallback;
 import com.example.beepi.network.CarsRequest;
+import com.example.beepi.network.JsonCallback;
 import com.example.beepi.util.ViewUtil;
 
 import java.io.IOException;
@@ -31,6 +31,9 @@ public class MainActivity extends AppCompatActivity
 
     private static final String QUERY = "query";
 
+    private static final int RETRIEVE_THRESHOLD = 30;
+
+    private LinearLayoutManager mLayoutManager;
     private CarsAdapter mAdapter;
     private Toolbar mToolbar;
     @Bind(R.id.loading) ContentLoadingProgressBar mLoading;
@@ -45,6 +48,16 @@ public class MainActivity extends AppCompatActivity
             if (mSearchView != null) {
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(mSearchView.getWindowToken(), 0);
+            }
+
+            int visibleItemCount = mLayoutManager.getChildCount();
+            int totalItemCount = mLayoutManager.getItemCount();
+            int firstVisibleItem = mLayoutManager.findFirstVisibleItemPosition();
+
+            if (mCall == null) {
+                if ((visibleItemCount + firstVisibleItem) >= (totalItemCount - RETRIEVE_THRESHOLD)) {
+                    searchCars(mQuery);
+                }
             }
         }
     };
@@ -131,8 +144,7 @@ public class MainActivity extends AppCompatActivity
                 mCall = null;
                 mLoading.hide();
 
-                mAdapter.setCars(result.carsOnSale);
-                mAdapter.notifyDataSetChanged();
+                mAdapter.addCars(result.carsOnSale);
             }
 
             @Override
@@ -167,7 +179,7 @@ public class MainActivity extends AppCompatActivity
 
     private void initRecyclerView() {
         mRecyclerView.addOnScrollListener(mScrollListener);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setLayoutManager(mLayoutManager = new LinearLayoutManager(this));
         mRecyclerView.setAdapter(mAdapter);
     }
 

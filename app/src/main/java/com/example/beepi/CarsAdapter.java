@@ -72,10 +72,10 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
         });
     }
 
-    public void setCars(Car[] cars) {
-        mCars.clear();
+    public void addCars(Car[] cars) {
         if (cars != null) {
-            mCars = Arrays.asList(cars);
+            mCars.addAll(Arrays.asList(cars));
+            notifyItemRangeInserted(mCars.size() - cars.length, cars.length);
         }
     }
 
