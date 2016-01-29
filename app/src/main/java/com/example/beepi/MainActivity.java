@@ -14,18 +14,17 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.inputmethod.InputMethodManager;
 
-import com.android.volley.Request;
-import com.android.volley.Response.ErrorListener;
-import com.android.volley.Response.Listener;
-import com.android.volley.TimeoutError;
-import com.android.volley.VolleyError;
 import com.example.beepi.model.Car;
 import com.example.beepi.model.CarsResponse;
+import com.example.beepi.network.JsonCallback;
 import com.example.beepi.network.CarsRequest;
 import com.example.beepi.util.ViewUtil;
 
+import java.io.IOException;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import okhttp3.Call;
 
 public class MainActivity extends AppCompatActivity
         implements SearchView.OnQueryTextListener, CarsAdapter.CarListener {
@@ -38,7 +37,7 @@ public class MainActivity extends AppCompatActivity
     @Bind(R.id.recyclerView) RecyclerView mRecyclerView;
     private String mQuery;
     private SearchView mSearchView;
-    private Request mQueryRequest;
+    private Call mCall;
 
     private final RecyclerView.OnScrollListener mScrollListener = new RecyclerView.OnScrollListener() {
         @Override
@@ -54,7 +53,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        AppHandles.initInstance(this);
+        AppHandles.initInstance();
 
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
@@ -98,8 +97,8 @@ public class MainActivity extends AppCompatActivity
         super.onDestroy();
 
         mRecyclerView.removeOnScrollListener(mScrollListener);
-        if (mQueryRequest != null) {
-            mQueryRequest.cancel();
+        if (mCall != null) {
+            mCall.cancel();
         }
     }
 
@@ -118,48 +117,40 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void searchCars(String query) {
-        if (mQueryRequest != null) {
-            mQueryRequest.cancel();
+        if (mCall != null) {
+            mCall.cancel();
         }
 
         mLoading.show();
 
         mQuery = query;
-        mQueryRequest = new CarsRequest(mQuery,
-                new Listener<CarsResponse>() {
-                    @Override
-                    public void onResponse(CarsResponse response) {
-                        mQueryRequest = null;
-                        mLoading.hide();
+        mCall = AppHandles.getInstance().getHttpClient().newCall(CarsRequest.build(mQuery));
+        mCall.enqueue(new JsonCallback<CarsResponse>(this, CarsResponse.class) {
+            @Override
+            protected void onResult(CarsResponse result) {
+                mCall = null;
+                mLoading.hide();
 
-                        mAdapter.setCars(response.carsOnSale);
-                        mAdapter.notifyDataSetChanged();
-                    }
-                },
-                new ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        mQueryRequest = null;
-                        mLoading.hide();
+                mAdapter.setCars(result.carsOnSale);
+                mAdapter.notifyDataSetChanged();
+            }
 
-                        String msg = error.getLocalizedMessage();
-                        if (TextUtils.isEmpty(msg)) {
-                            if (error instanceof TimeoutError) {
-                                msg = getString(R.string.error_timeout);
-                            } else {
-                                msg = getString(R.string.error_network);
-                            }
-                        }
-                        new AlertDialog.Builder(MainActivity.this)
-                                .setMessage(msg)
-                                .setPositiveButton(android.R.string.ok, null)
-                                .setPositiveButton(android.R.string.ok, null)
-                                .show();
-                    }
+            @Override
+            public void onFailure(IOException e) {
+                mCall = null;
+                mLoading.hide();
+
+                String msg = e.getLocalizedMessage();
+                if (TextUtils.isEmpty(msg)) {
+                    msg = getString(R.string.error_network);
                 }
-        );
-
-        AppHandles.getInstance().getRequestQueue().add(mQueryRequest);
+                new AlertDialog.Builder(MainActivity.this)
+                        .setMessage(msg)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show();
+            }
+        });
     }
 
     @Override

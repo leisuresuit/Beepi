@@ -1,22 +1,28 @@
 package com.example.beepi.network;
 
-import com.android.volley.Response;
-import com.android.volley.Response.Listener;
-import com.example.beepi.model.CarsResponse;
-
 import org.json.JSONObject;
+
+import okhttp3.MediaType;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 
 /**
  * Created by larwang on 12/8/15.
  */
-public class CarsRequest extends GsonRequest<CarsResponse> {
+public class CarsRequest {
+    private static MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
 
-    public CarsRequest(String query, Listener<CarsResponse> listener, Response.ErrorListener errorListener) {
-        super(Method.POST, "https://www.beepi.com/v1/listings/carsSearch", CarsResponse.class, null, formatJsonRequest(query), listener, errorListener);
+    private CarsRequest() {}
+
+    public static Request build(String query) {
+        return new Request.Builder()
+                .url("https://www.beepi.com/v1/listings/carsSearch")
+                .post(RequestBody.create(MEDIA_TYPE_JSON, formatJsonRequest(query)))
+                .build();
     }
 
-    private static JSONObject formatJsonRequest(String query) {
-        return new JSONObject();
+    private static String formatJsonRequest(String query) {
+        return new JSONObject().toString();
     }
 
 }

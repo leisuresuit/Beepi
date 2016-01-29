@@ -7,12 +7,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.NetworkImageView;
 import com.example.beepi.model.Car;
 import com.example.beepi.util.ViewUtil;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,8 +46,7 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.car_item, parent, false);
         CarViewHolder holder = new CarViewHolder(v);
-        ImageLoader imageLoader = AppHandles.getInstance().getImageLoader();
-        CarImageAdapter adapter = new CarImageAdapter(holder.itemView.getContext(), imageLoader);
+        CarImageAdapter adapter = new CarImageAdapter(holder.itemView.getContext());
         adapter.setListener(mListener);
         holder.pager.setAdapter(adapter);
         return holder;
@@ -82,13 +81,11 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
 
     static class CarImageAdapter extends PagerAdapter {
         private final LayoutInflater mLayoutInflater;
-        private final ImageLoader mImageLoader;
         private Car mCar;
         private CarListener mListener;
 
-        public CarImageAdapter(Context context, ImageLoader imageLoader) {
+        public CarImageAdapter(Context context) {
             mLayoutInflater = LayoutInflater.from(context);
-            mImageLoader = imageLoader;
         }
 
         public void setListener(CarListener listener) {
@@ -121,7 +118,7 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
                     }
                 });
             }
-            NetworkImageView iv = ViewUtil.findViewById(v, R.id.image);
+            ImageView iv = ViewUtil.findViewById(v, R.id.image);
             String url = null;
             switch (position) {
                 case 0:
@@ -135,7 +132,9 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
                     break;
             }
             if (url != null) {
-                iv.setImageUrl("https:" + url, mImageLoader);
+                Picasso.with(v.getContext())
+                        .load("https:" + url)
+                        .into(iv);
             }
             container.addView(v);
             return v;
